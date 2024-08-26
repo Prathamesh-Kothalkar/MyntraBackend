@@ -78,4 +78,30 @@ const loginUser = async (req, res) => {
     }
 };
 
-module.exports = { createUser, loginUser };
+const userProfile = async (req,res)=>{
+    try{
+        const userId=req.userId;
+        const user = await User.findOne({_id:userId});
+        if(!user){
+            return res.json({
+                message:"Somewent Gone Wrong...! User not Found"
+            })
+        }
+
+        res.json({
+            name:user.name,
+            phone:user.phone,
+            email:user.email,
+            createAt:user.createdAt,
+            updateAt:user.updatedAt
+        })
+    }
+    catch(err){
+         res.status(500).json({
+            message: "Server error",
+            error: err.message
+        });
+    }
+}
+
+module.exports = { createUser, loginUser, userProfile };
