@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require("../config");
 const User = require('../model/userModel');
+const Address = require('../model/addressModel');
 
 const createUser = async (req, res) => {
     try {
@@ -104,4 +105,60 @@ const userProfile = async (req,res)=>{
     }
 }
 
-module.exports = { createUser, loginUser, userProfile };
+const addAddress= async (req,res)=>{
+    try{
+
+        const {street,city,state,postalCode,country,landmark,apartmentNumber}=req.body;
+        const address = await Address.create({
+            userId:req.userId,
+            street,
+            city,
+            state,
+            postalCode,
+            country,
+            landmark,
+            apartmentNumber
+        })
+
+        if(!address){
+            return res.json({
+                message:"Error while adding address"
+            })
+        }
+
+        res.json({
+            message:"User Address added successfully",
+            address:address
+        })
+    }
+    catch(err){
+        res.status(500).json({
+           message: "Server error",
+           error: err.message
+       });
+   }
+
+}
+
+const getAddress = async (req,res)=>{
+    try{
+        const address = await Address.find({userId:req.userId});
+        if(!address){
+            return res.json({
+                message:"Address Not Found"
+            })
+        }
+
+        return res.json({
+            address:address
+        })
+    }
+    catch(err){
+        res.status(500).json({
+           message: "Server error",
+           error: err.message
+       });
+   }
+}
+
+module.exports = { createUser, loginUser, userProfile, addAddress, getAddress };
