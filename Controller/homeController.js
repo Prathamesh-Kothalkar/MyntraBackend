@@ -56,6 +56,25 @@ const getSlidesBySection = async (req, res) => {
     }
 };
 
+const getAllSlides=async(req,res)=>{
+    try{
+        const slides=await Home.find({});
+        if (!slides.length) {
+            return res.json({
+                message: "No slides found in this section"
+            });
+        }
+        res.json(slides);
+    }
+    catch (err) {
+        res.status(500).json(
+            {
+                message: err.message
+
+            });
+    }
+}
+
 const updateSlide = async (req, res) => {
     try {
         const { id } = req.params;
@@ -113,4 +132,4 @@ const deleteSlide = async (req, res) => {
 
 
 
-module.exports = { addSlide,getSlidesBySection, updateSlide, deleteSlide }
+module.exports = { addSlide, getSlidesBySection, getAllSlides, updateSlide, deleteSlide }
