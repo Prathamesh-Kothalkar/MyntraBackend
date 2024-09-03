@@ -1,5 +1,10 @@
 const Product = require('../model/productModel');
 
+const subCategories = {
+  men: ['shirts', 'trousers', 'shoes'],
+  women: ['dresses', 'handbags', 'shoes'],
+  kids: ['toys', 'clothing', 'shoes'],
+};
 
 exports.getAllProducts = async (req, res) => {
   try {
@@ -32,6 +37,66 @@ exports.getProductsByCategory = async (req, res) => {
   }
 };
 
+exports.getProductsBySubCategory = async (req, res) => {
+  const { category, subcategory } = req.params;
+  const validCategories = ['men', 'women', 'kids'];
+  const subCategories = {
+    men: ['shirts', 'trousers', 'shoes'],
+    women: ['dresses', 'handbags', 'shoes'],
+    kids: ['toys', 'clothing', 'shoes'],
+  };
+
+  if (!validCategories.includes(category.toLowerCase())) {
+    return res.status(400).json({ message: 'Invalid category' });
+  }
+
+  if (!subCategories[category.toLowerCase()]?.includes(subcategory.toLowerCase())) {
+    return res.status(400).json({ message: 'Invalid subcategory' });
+  }
+
+  try {
+    const products = await Product.find({
+      category: category.toLowerCase(),
+      subCategory: subcategory.toLowerCase(),
+    }).sort({ createdAt: -1 });
+
+    if(products.length==0){
+      return res.json({
+        message:"Item not Found"
+      })
+    }
+
+    res.status(200).json({ products });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getProductsBySubCategory = async (req, res) => {
+  const { category, subcategory } = req.params;
+  const validCategories = ['men', 'women', 'kids'];
+
+  if (!validCategories.includes(category.toLowerCase())) {
+    return res.status(400).json({ message: 'Invalid category' });
+  }
+
+  if (!subCategories[category.toLowerCase()]?.includes(subcategory.toLowerCase())) {
+    return res.status(400).json({ message: 'Invalid subcategory' });
+  }
+
+  try {
+    const products = await Product.find({
+      category: category.toLowerCase(),
+      subCategory: subcategory.toLowerCase(),
+    }).sort({ createdAt: -1 });
+    res.status(200).json({ products });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+
 
 exports.getProductById = async (req, res) => {
   try {
@@ -45,7 +110,7 @@ exports.getProductById = async (req, res) => {
 
 
 exports.createProduct = async (req, res) => {
-  const { name, description, price, category, brand, sizes, colors, images, stock } = req.body;
+  const { name, description, price, category,subCategory, brand, sizes, colors, images, stock } = req.body;
 
 
   if (!name || !price || !category) {
@@ -57,6 +122,7 @@ exports.createProduct = async (req, res) => {
     description,
     price,
     category: category.toLowerCase(),
+    subCategory: subCategory.toLowerCase(),
     brand,
     sizes,
     colors,
