@@ -5,7 +5,7 @@ const userAuth = (req,res,next)=>{
     const head_token = req.headers.authorization;
     
     
-    if(!head_token && !head_token.startsWith("Bearer")){
+    if(!head_token || !head_token.startsWith("Bearer")){
         return res.status(403).json({
             meassage:"Invalid Token"
         })
