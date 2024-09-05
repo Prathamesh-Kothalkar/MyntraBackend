@@ -80,9 +80,29 @@ const getCart = async (req, res) => {
     }
 };
 
+const getCartPrice = async (req,res)=>{
+    const userId=req.userId;
+    try{
+        const cart = await Cart.findOne({ userId }).populate('items.productId');
+        if (!cart) {
+            return res.status(404).json({ message: 'Cart not found' });
+        }
+
+        const items = cart.items;
+        const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2);
+        res.json({
+            total
+        })
+    }
+    catch(err){
+        console.log(err);
+    }
+}
+
 module.exports = {
     createCart,
     addToCart,
     removeProductCart,
-    getCart
+    getCart,
+    getCartPrice
 };
