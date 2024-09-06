@@ -1,11 +1,16 @@
 const Product = require('../model/productModel');
+const cloudinary = require('cloudinary').v2;
 
 const subCategories = {
   men: ['shirts', 'trousers', 'shoes'],
   women: ['dresses', 'handbags', 'shoes'],
   kids: ['toys', 'clothing', 'shoes'],
 };
-
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
@@ -110,13 +115,19 @@ exports.getProductById = async (req, res) => {
 
 
 exports.createProduct = async (req, res) => {
-  const { name, description, price, category,subCategory, brand, sizes, colors, images, stock } = req.body;
+  const { name, description, price, category,subCategory, brand, sizes, colors, stock } = req.body;
 
 
   if (!name || !price || !category) {
     return res.status(400).json({ message: 'Name, price, and category are required' });
   }
-
+  const uploadPromises = req.files.map(file=>
+    cloudinary.uploader.upload(file.path,{
+            folder:"ecomStore/products"
+    }).then(result=>({result})).catch(error=>({error,filePath:file.path}))
+)
+const results = await Promise.all(uploadPromises);
+const images = results.map(({result})=>result.secure_url);
   const product = new Product({
     name,
     description,
