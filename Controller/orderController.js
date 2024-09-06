@@ -20,14 +20,12 @@ exports.createOrder = async (req, res) => {
       order = new Order({ userId, orders: [] });
     }
 
-    console.log(cartItems)
-
     order.orders.push({
       items: cartItems,
-      paymentStatus: 'pending',
+      paymentStatus: 'confirmed',
       paymentId,
       address,
-      orderStatus: 'pending',
+      orderStatus: 'confirmed',
       amount: amount,
       signature,
       orderId
@@ -35,6 +33,8 @@ exports.createOrder = async (req, res) => {
 
 
     await order.save();
+
+    await Cart.findOneAndDelete({userId});
 
     res.status(201).json(order);
   } catch (error) {
