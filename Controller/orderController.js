@@ -5,7 +5,7 @@ const Cart = require('../model/cartModel');
 // Create an Order
 exports.createOrder = async (req, res) => {
   try {
-    const { paymentId, address, amount } = req.body;
+    const { paymentId, address, amount, orderId,signature } = req.body;
 
     // Fetch items from the user's cart
     const userId = req.userId;
@@ -20,19 +20,21 @@ exports.createOrder = async (req, res) => {
       order = new Order({ userId, orders: [] });
     }
 
-    console.log(cartItems)
-
     order.orders.push({
       items: cartItems,
-      paymentStatus: 'pending',
+      paymentStatus: 'confirmed',
       paymentId,
       address,
-      orderStatus: 'pending',
-      amount: amount
+      orderStatus: 'confirmed',
+      amount: amount,
+      signature,
+      orderId
     })
 
 
     await order.save();
+
+    await Cart.findOneAndDelete({userId});
 
     res.status(201).json(order);
   } catch (error) {

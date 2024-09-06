@@ -15,7 +15,9 @@ const orderSchema = new mongoose.Schema({
   },
   amount:{
     type:Number
-  }
+  },
+  orderId:String,
+  signature:String
 });
 
 const ordersSchema = new mongoose.Schema({
