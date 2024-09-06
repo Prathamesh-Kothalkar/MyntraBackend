@@ -5,7 +5,7 @@ const Cart = require('../model/cartModel');
 // Create an Order
 exports.createOrder = async (req, res) => {
   try {
-    const { paymentId, address, amount } = req.body;
+    const { paymentId, address, amount, orderId,signature } = req.body;
 
     // Fetch items from the user's cart
     const userId = req.userId;
@@ -28,7 +28,9 @@ exports.createOrder = async (req, res) => {
       paymentId,
       address,
       orderStatus: 'pending',
-      amount: amount
+      amount: amount,
+      signature,
+      orderId
     })
 
 
