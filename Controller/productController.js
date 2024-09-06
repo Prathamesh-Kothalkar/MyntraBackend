@@ -7,9 +7,9 @@ const subCategories = {
   kids: ['toys', 'clothing', 'shoes'],
 };
 cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: 'dumjtp23d',
+  api_key: '937132914545171',
+  api_secret: 'YqFVbh9ZLliHcMTc9Fu6BrbstD4',
 });
 exports.getAllProducts = async (req, res) => {
   try {
