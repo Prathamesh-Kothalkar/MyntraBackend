@@ -2,9 +2,11 @@ const razorpayInstance = require("../rozarpay");
 
 // Create Order in Razorpay
 exports.createOrder = async (req, res) => {
+  console.log(req.body.amount);
+  const amountInPaise = Math.round(req.body.amount * 100); 
   try {
     const options = {
-      amount: req.body.amount, // amount in paise
+      amount: amountInPaise, // amount in paise
       currency: "INR",
       receipt: "receipt#1",
     };
