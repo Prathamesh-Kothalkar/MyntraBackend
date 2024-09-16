@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require("../config");
 const Admin = require("../model/adminModel");
+const User = require('../model/userModel');
+const Order = require('../model/orderModel')
 
 const createAdmin = async (req, res) => {
 
@@ -79,6 +81,40 @@ const loginAdmin = async (req, res) => {
     }
 };
 
+const allUsers = async (req, res) => {
+    try {
+        const users = await User.find({});
+        res.json( users )
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+}
+
+const allOrders = async (req, res) => {
+    try {
+        const orders = await Order.find().populate('userId', 'name email');
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch orders" });
+    }
+}
+
+const updateOrderStatus = async (req, res) => {
+    const { orderId, itemId } = req.params;
+    const { status } = req.body;
+
+    try {
+        const order = await Order.findOneAndUpdate(
+            { 'orders._id': orderId, 'orders.items._id': itemId },
+            { $set: { 'orders.$.orderStatus': status } },
+            { new: true }
+        );
+        res.json(order);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to update order status" });
+    }
+}
+
 module.exports= {
-    loginAdmin,createAdmin
+    loginAdmin,createAdmin, allUsers, allOrders, updateOrderStatus
 }

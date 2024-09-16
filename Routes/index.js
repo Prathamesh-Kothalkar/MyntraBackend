@@ -8,7 +8,7 @@ const cartRouter=require("./cartRoutes");
 const orderRouter = require("./orderRoutes");
 const paymentRouter=require("./paymentRoutes");
 
-router.use("/user",userRouter);
+router.use("/user", userRouter);
 router.use("/product",productRouter);
 router.use("/admin",adminRouter);
 router.use("/home",homeRouter);
