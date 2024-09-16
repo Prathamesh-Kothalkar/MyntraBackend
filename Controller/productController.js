@@ -1,6 +1,6 @@
+const esClient = require('../elasitcsrh');
 const Product = require('../model/productModel');
 const cloudinary = require('cloudinary').v2;
-
 const subCategories = {
   men: ['shirts', 'trousers', 'shoes'],
   women: ['dresses', 'handbags', 'shoes'],
@@ -116,7 +116,7 @@ exports.getProductById = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
   const { name, description, price, category,subCategory, brand, sizes, colors, stock } = req.body;
-
+  try {
 
   if (!name || !price || !category) {
     return res.status(400).json({ message: 'Name, price, and category are required' });
@@ -141,13 +141,50 @@ const images = results.map(({result})=>result.secure_url);
     stock,
   });
 
-  try {
     const newProduct = await product.save();
+    await esClient.index({
+      index: 'products',
+      id: newProduct._id.toString(), // Using MongoDB _id as Elasticsearch document id
+      body: {
+          name: newProduct.name,
+          description: newProduct.description,
+          price: newProduct.price,
+          category: newProduct.category,
+          subCategory: newProduct.subCategory,
+          sizes: newProduct.sizes,
+          colors: newProduct.colors,
+          stock: newProduct.stock,
+          images: newProduct.images,
+          createdAt: newProduct.createdAt
+      }
+  });
     res.status(201).json(newProduct);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
+exports.searchProduct = async (req, res) => {
+  const query = req.query.q || '';
+  try {
+    const result = await esClient.search({
+      index: 'products', // The Elasticsearch index name
+      body: {
+          query: {
+              multi_match: {
+                  query: query,
+                  fields: ['name', 'description', 'category','subCategory', 'sizes', 'colors'] // Now searching in sizes and colors too
+              }
+          }
+      }
+  });
+
+      const products = result.hits.hits.map(hit => hit._source); // Get the products from the search result
+      res.json(products);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'An error occurred while searching for products' });
+  }
+}
 
 
 exports.updateProduct = async (req, res) => {

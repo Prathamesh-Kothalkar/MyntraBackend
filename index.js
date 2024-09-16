@@ -3,9 +3,11 @@ const chalk = require('chalk');
 const app = express();
 const cors = require("cors")
 require("./db")
+require("./elasitcsrh")
 const PORT_NO = process.env.PORT_NO||3000;
 const rootRouter=require("./Routes/index");
 require('dotenv').config();
+
 
 app.use(cors());
 app.use(express.json());
