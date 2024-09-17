@@ -99,6 +99,40 @@ const allOrders = async (req, res) => {
     }
 }
 
+const dashBoardAllOrders = async (req, res) => {
+    try {
+        const orders = await Order.find().populate({ path: 'orders.items.items.productId', model: 'Product' });
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch orders" });
+    }
+}
+
+const dashboard = async (req, res) => {
+    try {
+        const users = await User.find({});
+        function groupUsersByMonth(users) {
+            const groupedUsers = {};
+            users.forEach(user => {
+              const createdAtDate = new Date(user.createdAt);
+              const monthIndex = createdAtDate.getMonth();
+              const monthName = createdAtDate.toLocaleString('en-US', { month: 'long' });
+              if (!groupedUsers[monthIndex]) {
+                groupedUsers[monthIndex] = {
+                  monthName,
+                  users: []
+                };
+              }
+              groupedUsers[monthIndex].users.push({"name": user.name,"email": user.email, "phone": user.phone});
+            });
+            return Object.values(groupedUsers);
+          }
+        res.json(groupUsersByMonth(users));
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch Data" });
+    }
+}
+
 const updateOrderStatus = async (req, res) => {
     const { orderId, itemId } = req.params;
     const { status } = req.body;
@@ -116,5 +150,5 @@ const updateOrderStatus = async (req, res) => {
 }
 
 module.exports= {
-    loginAdmin,createAdmin, allUsers, allOrders, updateOrderStatus
+    loginAdmin,createAdmin, allUsers, allOrders, updateOrderStatus, dashboard, dashBoardAllOrders
 }
