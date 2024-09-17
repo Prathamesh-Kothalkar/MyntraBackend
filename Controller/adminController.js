@@ -3,7 +3,8 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require("../config");
 const Admin = require("../model/adminModel");
 const User = require('../model/userModel');
-const Order = require('../model/orderModel')
+const Order = require('../model/orderModel');
+const Product = require('../model/productModel');
 
 const createAdmin = async (req, res) => {
 
@@ -149,6 +150,55 @@ const updateOrderStatus = async (req, res) => {
     }
 }
 
-module.exports= {
-    loginAdmin,createAdmin, allUsers, allOrders, updateOrderStatus, dashboard, dashBoardAllOrders
+
+//admin products
+const allProducts = async (req, res) => {
+    try {
+        const products = await Product.find();
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to retrieve products', error });
+    }
 }
+
+const addProducts = async (req, res) => {
+    try {
+        const product = new Product(req.body);
+        await product.save();
+        res.status(201).json({ message: 'Product added successfully', product });
+    } catch (error) {
+        res.status(400).json({ message: 'Failed to add product', error });
+    }
+}
+const editProducts = async (req, res) => {
+    try {
+        const updatedProduct = await Product.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }  
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        res.json({ message: 'Product updated successfully', updatedProduct });
+    } catch (error) {
+        res.status(400).json({ message: 'Failed to update product', error });
+    }
+}
+
+const deleteProduct = async (req, res) => {
+    try {
+        await Product.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Product deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to delete product', error });
+    }
+}
+
+module.exports= {
+    loginAdmin, createAdmin, allUsers, allOrders, updateOrderStatus, allProducts, addProducts, editProducts, deleteProduct, dashBoardAllOrders, dashboard
+}
+
+
